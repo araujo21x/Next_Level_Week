@@ -119,6 +119,7 @@ const CreatePoint = () => {
         const [latitude, logintude] = selectedPosition;
         const items = selectedItems;
         const data = {
+            image: 'image-fake',
             name, 
             email,
             whatsapp,
