@@ -18,6 +18,7 @@ interface Point{
     id: number;
     name:string;
     image: string;
+    image_url:string;
     latitude: number;
     longitude: number;
 }
@@ -128,7 +129,7 @@ const Points = () => {
                             }}
                         >
                             <View style={styles.mapMarkerContainer}>
-                                <Image style={styles.mapMarkerImage} source={{ uri: 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcTi4lvvzfSmB37J62TuNbzLiSmpF42qVvt05dx-g32eSw4rwef0&usqp=CAU' }} />
+                                <Image style={styles.mapMarkerImage} source={{ uri: point.image_url }} />
                                 <Text style={styles.mapMarkerTitle}>{point.name}</Text>
                             </View>
                         </Marker>

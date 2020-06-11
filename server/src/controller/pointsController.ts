@@ -11,7 +11,7 @@ class PointsController {
         } = request.body;
 
         const point = {
-            image: 'image-fake', name,
+            image: request.file.filename, name,
             email, whatsapp, latitude,
             longitude, city, uf
         };
@@ -22,24 +22,27 @@ class PointsController {
 
         const id_point = insertedIds[0];
 
-        const pointItems = items.map((id_item: number) => {
-            return {
-                id_item,
-                id_point
-            }
-        });
+        const pointItems = items
+            .split(',')
+            .map((item: string) => Number(item.trim()))
+            .map((id_item: number) => {
+                return {
+                    id_item,
+                    id_point
+                }
+            });
         await trx('point_items').insert(pointItems);
 
         await trx.commit();
-        
+
         return response.json({
             id: id_point,
             ...point
         });
     };
 
-    async index(request:Request, response:Response){
-        const {city, uf, items} = request.query;
+    async index(request: Request, response: Response) {
+        const { city, uf, items } = request.query;
 
         const parsedItems = String(items)
             .split(',')
@@ -53,7 +56,16 @@ class PointsController {
             .distinct()
             .select('points.*');
 
-        response.status(200).json(points)
+        const serializedPoints = points.map(element => {
+            return {
+                ...element,
+                image_url: `http://192.168.0.105:3000/uploads/${element.image}`,
+            };
+        });
+
+        response.status(200).json(serializedPoints)
+
+
     }
 
     async show(request: Request, response: Response) {
@@ -63,11 +75,18 @@ class PointsController {
 
         if (!point) return response.status(400).json({ message: 'POint not Found!' });
 
+        const serializedPoints = {
+            ...point,
+            image_url: `http://192.168.0.105:3000/uploads/${point.image}`,
+        };
+
         const items = await knex('items')
             .join('point_items', 'items.id', '=', 'point_items.id_item')
             .where('point_items.id_point', id).select('title');
 
-        return response.status(200).json({point, items});
+        
+
+        return response.status(200).json({ serializedPoints, items });
     }
 
 }
