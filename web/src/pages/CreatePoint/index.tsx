@@ -41,6 +41,7 @@ const CreatePoint = () => {
     const [selectedUf, setSelectedUf] = useState('0');
     const [selectedCity, setSelectedCity] = useState('0');
     const [selectedPosition, setSelectedPosition] = useState<[number, number]>([0, 0]);
+    const [selectedFile, setSelectedFile] = useState<File>();
 
     const history = useHistory();
 
@@ -103,34 +104,38 @@ const CreatePoint = () => {
     function handleSelectItem(id: number) {
         const alreadySelected = selectedItems.findIndex(item => item === id);
 
-        if(alreadySelected >= 0) {
+        if (alreadySelected >= 0) {
             const filterredItems = selectedItems.filter(item => item !== id);
             setSelectedItems(filterredItems);
-        }else{
-            setSelectedItems([ ...selectedItems, id]);
+        } else {
+            setSelectedItems([...selectedItems, id]);
         }
-        
+
     }
 
-    async function handleSubmit(event: FormEvent){
+    async function handleSubmit(event: FormEvent) {
         event.preventDefault();
 
-        const { name, email, whatsapp} = formData;
+        const { name, email, whatsapp } = formData;
         const uf = selectedUf;
         const city = selectedCity;
         const [latitude, logintude] = selectedPosition;
         const items = selectedItems;
-        const data = {
-            image: 'image-fake',
-            name, 
-            email,
-            whatsapp,
-            uf,
-            city,
-            latitude,
-            longitude: logintude,
-            items
+
+        const data = new FormData();
+
+        data.append('name', name);
+        data.append('email', email);
+        data.append('whatsapp', whatsapp);
+        data.append('uf', uf);
+        data.append('city', city);
+        data.append('latitude', String(latitude));
+        data.append('longitude', String(logintude));
+        data.append('items', items.join(','));
+        if (selectedFile) {
+            data.append('image', selectedFile);
         }
+
         await api.post('points', data);
 
         alert('Ponto de coleta criado!');
@@ -152,7 +157,7 @@ const CreatePoint = () => {
             <form onSubmit={handleSubmit}>
                 <h1>Cadastro do <br />ponto de coleta</h1>
 
-                <DropZone />
+                <DropZone onFileUpload={setSelectedFile} />
 
 
 
@@ -254,7 +259,7 @@ const CreatePoint = () => {
                         {items.map(item => (
                             <li
                                 key={item.id}
-                                
+
                                 onClick={() => handleSelectItem(item.id)}
                                 className={selectedItems.includes(item.id) ? 'selected' : ''}
                             >
