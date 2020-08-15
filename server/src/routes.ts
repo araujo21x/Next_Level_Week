@@ -31,7 +31,7 @@ routes.post('/points',
     ),
     pointsController.creat
 );
-routes.get('/points', pointsController.index);
+routes.get('/points', middlewareAuth(),  pointsController.index);
 routes.get('/points/:id', pointsController.show);
 
 export default routes;
